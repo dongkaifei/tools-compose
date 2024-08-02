@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="keywords"
+      content="image filter, hue rotate, contrast adjustment, image editor, online image editor, photo filter, image hue rotate, image contrast, image upload, download edited image, HTML5 canvas, JavaScript image processing"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Hue Rotate and Contrast</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+      }
+      #image-container {
+        margin: 20px;
+      }
+      #slider-container {
+        margin: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .slider-group {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Image Hue Rotate and Contrast</h1>
+    <input type="file" id="upload" accept="image/*" />
+    <div id="slider-container">
+      <div class="slider-group">
+        <label for="hue-slider"
+          >Hue Rotate: <span id="hue-value">0</span>°</label
+        >
+        <input type="range" id="hue-slider" min="0" max="360" value="0" />
+      </div>
+      <div class="slider-group">
+        <label for="contrast-slider"
+          >Contrast: <span id="contrast-value">100</span>%</label
+        >
+        <input
+          type="range"
+          id="contrast-slider"
+          min="0"
+          max="200"
+          value="100"
+        />
+      </div>
+    </div>
+    <div id="image-container">
+      <canvas id="canvas"></canvas>
+    </div>
+    <button id="download">Download Adjusted Image</button>
+
+    <script>
+      const upload = document.getElementById("upload");
+      const hueSlider = document.getElementById("hue-slider");
+      const hueValue = document.getElementById("hue-value");
+      const contrastSlider = document.getElementById("contrast-slider");
+      const contrastValue = document.getElementById("contrast-value");
+      const canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      const downloadButton = document.getElementById("download");
+      let img = new Image();
+
+      upload.addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            img.onload = () => {
+              canvas.width = img.width;
+              canvas.height = img.height;
+              ctx.drawImage(img, 0, 0);
+            };
+            img.src = e.target.result;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
+
+      hueSlider.addEventListener("input", () => {
+        const hue = hueSlider.value;
+        hueValue.textContent = hue;
+        applyFilters();
+      });
+
+      contrastSlider.addEventListener("input", () => {
+        const contrast = contrastSlider.value;
+        contrastValue.textContent = contrast;
+        applyFilters();
+      });
+
+      function applyFilters() {
+        const hue = hueSlider.value;
+        const contrast = contrastSlider.value;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.filter = `hue-rotate(${hue}deg) contrast(${contrast}%)`;
+        ctx.drawImage(img, 0, 0);
+        ctx.filter = "none";
+      }
+
+      downloadButton.addEventListener("click", () => {
+        const link = document.createElement("a");
+        link.download = "adjusted-image.png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    </script>
+  </body>
+</html>
